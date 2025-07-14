@@ -34,7 +34,7 @@ This system implements a 7-stage pipeline that:
 ### Setup
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone [<repository-url>](https://github.com/FafnirX26/pHdock.git)
 cd phDock
 ```
 
@@ -136,15 +136,3 @@ python src/pka_prediction.py
 # Test conformer generation
 python src/conformer_generation.py
 ```
-
-## License
-
-[Add your license information here]
-
-## Contributing
-
-[Add contributing guidelines here]
-
-## Citation
-
-[Add citation information here]
