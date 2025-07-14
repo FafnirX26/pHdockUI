@@ -34,7 +34,7 @@ This system implements a 7-stage pipeline that:
 ### Setup
 1. Clone the repository:
 ```bash
-git clone [<repository-url>](https://github.com/FafnirX26/pHdock.git)
+git clone https://github.com/FafnirX26/pHdock.git
 cd phDock
 ```
 
