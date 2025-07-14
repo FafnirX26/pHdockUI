@@ -136,15 +136,3 @@ python src/pka_prediction.py
 # Test conformer generation
 python src/conformer_generation.py
 ```
-
-## License
-
-[Add your license information here]
-
-## Contributing
-
-[Add contributing guidelines here]
-
-## Citation
-
-[Add citation information here]

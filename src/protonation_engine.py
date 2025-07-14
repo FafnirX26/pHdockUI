@@ -35,8 +35,8 @@ class ProtonationEngine:
         
         self.logger = logging.getLogger(__name__)
         
-        # Generate pH values for sweep
-        self.ph_values = np.arange(ph_range[0], ph_range[1] + ph_step, ph_step)
+        # Generate pH values for sweep with variable step sizes
+        self.ph_values = self._generate_variable_ph_values(ph_range)
         
         # SMARTS patterns for ionizable groups
         self.ionizable_patterns = {
@@ -89,6 +89,58 @@ class ProtonationEngine:
                 'deprotonated': '[S-]'                # S-
             }
         }
+    
+    def _generate_variable_ph_values(self, ph_range: Tuple[float, float]) -> np.ndarray:
+        """
+        Generate pH values with variable step sizes:
+        - Step 1.0 from pH_min to pH 6
+        - Step 0.1 from pH 6 to pH 7
+        - Step 0.05 from pH 7 to pH 7.6
+        - Step 0.1 from pH 7.6 to pH 8
+        - Step 1.0 from pH 8 to pH_max
+        
+        Args:
+            ph_range: pH range (min_ph, max_ph)
+            
+        Returns:
+            Array of pH values
+        """
+        ph_values = []
+        min_ph, max_ph = ph_range
+        
+        # Step 1: pH_min to pH 6 with step 1.0
+        if min_ph < 6.0:
+            ph_values.extend(np.arange(min_ph, min(6.0, max_ph), 1.0))
+        
+        # Step 2: pH 6 to pH 7 with step 0.1
+        if min_ph < 7.0 and max_ph > 6.0:
+            start_ph = max(6.0, min_ph)
+            ph_values.extend(np.arange(start_ph, min(7.0, max_ph), 0.1))
+        
+        # Step 3: pH 7 to pH 7.6 with step 0.05
+        if min_ph < 7.6 and max_ph > 7.0:
+            start_ph = max(7.0, min_ph)
+            ph_values.extend(np.arange(start_ph, min(7.6, max_ph), 0.05))
+        
+        # Step 4: pH 7.6 to pH 8 with step 0.1
+        if min_ph < 8.0 and max_ph > 7.6:
+            start_ph = max(7.6, min_ph)
+            ph_values.extend(np.arange(start_ph, min(8.0, max_ph), 0.1))
+        
+        # Step 5: pH 8 to pH_max with step 1.0
+        if max_ph > 8.0:
+            start_ph = max(8.0, min_ph)
+            ph_values.extend(np.arange(start_ph, max_ph + 1.0, 1.0))
+        
+        # Remove duplicates and sort
+        ph_values = sorted(set(np.round(ph_values, 2)))
+        
+        # Ensure max pH is included if it's not already
+        if max_ph not in ph_values and max_ph >= min_ph:
+            ph_values.append(max_ph)
+            ph_values = sorted(ph_values)
+        
+        return np.array(ph_values)
     
     def identify_ionizable_sites(self, mol: Chem.Mol) -> List[Dict[str, Any]]:
         """
@@ -418,12 +470,13 @@ def generate_protonation_ensemble(molecules: List[Chem.Mol],
         molecules: List of RDKit molecules
         pka_predictions: Optional list of pKa predictions for each molecule
         ph_range: pH range for sweep
-        ph_step: Step size for pH sweep
+        ph_step: Step size for pH sweep (ignored - uses variable step sizes)
         save_dir: Optional directory to save results
         
     Returns:
         List of protonation state dictionaries for each molecule
     """
+    # Note: ph_step is ignored as we use variable step sizes
     engine = ProtonationEngine(ph_range=ph_range, ph_step=ph_step)
     results = []
     
