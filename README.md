@@ -63,8 +63,17 @@ python main.py --input molecules.smi --mode pka_prediction --output results/
 
 ### Generate Protonation States
 ```bash
-python main.py --input molecules.sdf --mode protonation_states --ph_min 1 --ph_max 14 --ph_step 0.5
+python main.py --input molecules.sdf --mode protonation_states --ph_min 1 --ph_max 14
 ```
+
+**Note:** The protonation engine now uses intelligent variable pH step sizes optimized for biological systems:
+- Step 1.0 from pH_min to pH 6
+- Step 0.1 from pH 6 to pH 7 
+- Step 0.05 from pH 7 to pH 7.6
+- Step 0.1 from pH 7.6 to pH 8
+- Step 1.0 from pH 8 to pH_max
+
+This provides fine-grained sampling around physiologically relevant pH values (6-8) where most pKa transitions occur, while using coarser steps outside this range for efficiency. The `--ph_step` parameter is maintained for backward compatibility but is ignored.
 
 ### Full Pipeline with Docking
 ```bash
