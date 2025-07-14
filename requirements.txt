@@ -1,0 +1,13 @@
+rdkit
+xgboost
+scikit-learn
+numpy
+pandas
+matplotlib
+seaborn
+torch
+torch-geometric
+openmm
+jupyter
+tqdm
+joblib
