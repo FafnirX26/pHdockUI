@@ -437,16 +437,69 @@ def load_chembl_pka_dataset(data_dir: str = "data", limit: int = 1000) -> Dict[s
     return integrator.get_combined_dataset(['chembl'])
 
 
-def load_combined_dataset(sources: List[str] = None, data_dir: str = "data") -> Dict[str, Union[List, np.ndarray]]:
+def load_combined_dataset(sources: List[str] = None, data_dir: str = "data", limit: int = None) -> Dict[str, Union[List, np.ndarray]]:
     """
     Load combined pKa dataset from multiple sources.
     
     Args:
         sources: List of data sources to combine
         data_dir: Directory to store downloaded data
+        limit: Maximum number of molecules to load
         
     Returns:
         Training data dictionary
     """
     integrator = DataIntegration(data_dir)
-    return integrator.get_combined_dataset(sources)
+    result = integrator.get_combined_dataset(sources)
+    
+    # Apply limit if specified
+    if limit and result and 'molecules' in result:
+        if len(result['molecules']) > limit:
+            for key in result:
+                if isinstance(result[key], (list, np.ndarray)) and len(result[key]) == len(result['molecules']):
+                    result[key] = result[key][:limit]
+    
+    return result
+
+
+def load_large_dataset(data_dir: str = "training_data", limit: int = None) -> Dict[str, Union[List, np.ndarray]]:
+    """
+    Load the large combined dataset created by batch fetcher.
+    
+    Args:
+        data_dir: Directory containing the large dataset
+        limit: Maximum number of molecules to load
+        
+    Returns:
+        Training data dictionary
+    """
+    data_path = Path(data_dir)
+    large_file = data_path / "combined_pka_dataset_large.csv"
+    
+    if not large_file.exists():
+        logger.warning(f"Large dataset not found at {large_file}")
+        return {}
+    
+    try:
+        # Load the large dataset
+        df = pd.read_csv(large_file)
+        logger.info(f"Loading large dataset: {len(df)} records")
+        
+        # Apply limit if specified
+        if limit and len(df) > limit:
+            df = df.head(limit)
+            logger.info(f"Limited to {limit} records")
+        
+        # Validate and clean
+        integrator = DataIntegration(str(data_path))
+        cleaned_df = integrator.validate_and_clean_data(df)
+        
+        # Prepare for training
+        training_data = integrator.prepare_training_data(cleaned_df)
+        
+        logger.info(f"Large dataset loaded: {len(training_data.get('molecules', []))} molecules")
+        return training_data
+        
+    except Exception as e:
+        logger.error(f"Error loading large dataset: {e}")
+        return {}

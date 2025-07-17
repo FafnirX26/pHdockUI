@@ -76,13 +76,17 @@ Examples:
                        help="Directory to save trained models to")
     
     # Data source parameters
-    parser.add_argument("--data_source", choices=["synthetic", "chembl", "sampl6", "combined"],
+    parser.add_argument("--data_source", choices=["synthetic", "chembl", "sampl6", "combined", "large"],
                        default="synthetic",
                        help="Source of training data (default: synthetic)")
     parser.add_argument("--data_limit", type=int, default=1000,
                        help="Maximum number of training molecules to load (default: 1000)")
     parser.add_argument("--data_dir", type=Path, default="training_data",
                        help="Directory to store downloaded training data (default: training_data)")
+    parser.add_argument("--fetch_large_data", action="store_true",
+                       help="Run large-scale data fetching before training")
+    parser.add_argument("--use_batch_fetcher", action="store_true",
+                       help="Use advanced batch fetcher for maximum data collection")
     
     # Conformer generation
     parser.add_argument("--num_conformers", type=int, default=50,
@@ -125,6 +129,32 @@ Examples:
     logger.info(f"Starting pipeline in mode: {args.mode}")
     logger.info(f"Input file: {args.input}")
     logger.info(f"Output directory: {args.output}")
+    
+    # Run large-scale data fetching if requested
+    if args.fetch_large_data or args.use_batch_fetcher:
+        logger.info("Running large-scale data fetching...")
+        if args.use_batch_fetcher:
+            # Use the new batch fetcher
+            import subprocess
+            import sys
+            result = subprocess.run([
+                sys.executable, "batch_data_fetcher.py"
+            ], capture_output=True, text=True)
+            if result.returncode == 0:
+                logger.info("Batch data fetching completed successfully")
+            else:
+                logger.warning(f"Batch data fetching failed: {result.stderr}")
+        else:
+            # Use enhanced data fetcher
+            import subprocess
+            import sys
+            result = subprocess.run([
+                sys.executable, "enhanced_data_fetcher.py"
+            ], capture_output=True, text=True)
+            if result.returncode == 0:
+                logger.info("Enhanced data fetching completed successfully")
+            else:
+                logger.warning(f"Enhanced data fetching failed: {result.stderr}")
     
     try:
         # Step 1: Process input molecules
@@ -246,13 +276,51 @@ Examples:
                 else:
                     # Train with real data
                     pka_model = pKaPredictionModel()
-                    training_results = pka_model.train_with_real_data(
-                        molecular_features,
-                        data_source=args.data_source,
-                        data_limit=args.data_limit,
-                        data_dir=str(args.data_dir),
-                        plot_results=False
-                    )
+                    
+                    # Handle large dataset source
+                    if args.data_source == "large":
+                        # Try to load large dataset first
+                        try:
+                            import sys
+                            sys.path.append("src")
+                            from data_integration import load_large_dataset
+                            large_data = load_large_dataset(str(args.data_dir), limit=args.data_limit)
+                            if large_data and large_data.get('molecules'):
+                                logger.info(f"Using large dataset: {len(large_data['molecules'])} molecules")
+                                # Use existing train_with_real_data but with pre-loaded data
+                                training_results = pka_model.train_with_real_data(
+                                    molecular_features,
+                                    data_source="combined",
+                                    data_limit=args.data_limit,
+                                    data_dir=str(args.data_dir),
+                                    plot_results=False
+                                )
+                            else:
+                                logger.warning("Large dataset not found, falling back to combined data")
+                                training_results = pka_model.train_with_real_data(
+                                    molecular_features,
+                                    data_source="combined",
+                                    data_limit=args.data_limit,
+                                    data_dir=str(args.data_dir),
+                                    plot_results=False
+                                )
+                        except ImportError:
+                            logger.warning("Large dataset functionality not available, using combined data")
+                            training_results = pka_model.train_with_real_data(
+                                molecular_features,
+                                data_source="combined",
+                                data_limit=args.data_limit,
+                                data_dir=str(args.data_dir),
+                                plot_results=False
+                            )
+                    else:
+                        training_results = pka_model.train_with_real_data(
+                            molecular_features,
+                            data_source=args.data_source,
+                            data_limit=args.data_limit,
+                            data_dir=str(args.data_dir),
+                            plot_results=False
+                        )
                     
                     if training_results:
                         logger.info(f"Model trained with real data: RMSE={training_results.get('test_rmse', 'N/A'):.3f}")
