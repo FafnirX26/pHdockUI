@@ -1,15 +1,8 @@
 {
-  "buildCommand": "npm run build",
-  "devCommand": "npm run dev",
-  "installCommand": "npm install",
+  "buildCommand": "cd website && npm run build",
+  "devCommand": "cd website && npm run dev",
+  "installCommand": "cd website && npm install",
+  "outputDirectory": "website/.next",
   "framework": "nextjs",
-  "regions": ["iad1"],
-  "functions": {
-    "app/**": {
-      "runtime": "@vercel/node@3"
-    }
-  },
-  "env": {
-    "NEXT_PUBLIC_API_URL": "https://your-backend-domain.com"
-  }
+  "rootDirectory": "website"
 }
