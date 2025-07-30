@@ -2,10 +2,57 @@
 
 import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
-import { Loader2, Download, CheckCircle, AlertCircle } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Loader2, Download, AlertCircle } from "lucide-react";
+import { useState } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+// Type definitions
+interface SitePka {
+  pka: number;
+  atom_index: number;
+}
+
+interface ProtonationState {
+  state_id: number;
+  charge: number;
+  smiles: string;
+  confidence: number;
+}
+
+interface DockingPose {
+  state: number;
+  score: number;
+  confidence: number;
+}
+
+interface JobResults {
+  molecule_info?: {
+    smiles: string;
+    molecular_weight: number;
+  };
+  pka_predictions?: {
+    overall_pka: number;
+    site_pkas: SitePka[];
+    confidence: number;
+  };
+  protonation_states?: ProtonationState[];
+  docking_results?: {
+    poses: DockingPose[];
+    best_score: number;
+  };
+}
+
+interface JobData {
+  status: string;
+  progress: number;
+  results?: JobResults;
+  request?: {
+    ph_value: number;
+    smiles?: string;
+  };
+  error?: string;
+}
 
 interface ResultsPanelProps {
   jobId: string;
@@ -14,11 +61,11 @@ interface ResultsPanelProps {
 export default function ResultsPanel({ jobId }: ResultsPanelProps) {
   const [activeTab, setActiveTab] = useState<"pka" | "protonation" | "docking">("pka");
 
-  const { data: jobResult, isLoading } = useQuery({
+  const { data: jobResult, isLoading } = useQuery<JobData>({
     queryKey: ["job", jobId],
     queryFn: async () => {
       const response = await axios.get(`${API_URL}/api/jobs/${jobId}`);
-      return response.data;
+      return response.data as JobData;
     },
     refetchInterval: (query) => {
       const data = query.state.data;
@@ -137,18 +184,18 @@ export default function ResultsPanel({ jobId }: ResultsPanelProps) {
             <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
               <h4 className="font-medium mb-2">Global pKa</h4>
               <p className="text-2xl font-bold text-blue-600">
-                {results?.pka_predictions?.global_pka?.toFixed(2) || "N/A"}
+                {results?.pka_predictions?.overall_pka?.toFixed(2) || "N/A"}
               </p>
               <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                 Confidence: {((results?.pka_predictions?.confidence || 0) * 100).toFixed(1)}%
               </p>
             </div>
             
-            {results?.pka_predictions?.site_pkas?.length > 0 && (
+            {(results?.pka_predictions?.site_pkas?.length ?? 0) > 0 && (
               <div>
                 <h4 className="font-medium mb-2">Site-specific pKa values</h4>
                 <div className="space-y-2">
-                  {results.pka_predictions.site_pkas.map((site: any, idx: number) => (
+                  {results?.pka_predictions?.site_pkas?.map((site: SitePka, idx: number) => (
                     <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
                       <span className="text-sm">Site {idx + 1}</span>
                       <span className="font-mono">{site.pka?.toFixed(2) || "N/A"}</span>
@@ -162,7 +209,7 @@ export default function ResultsPanel({ jobId }: ResultsPanelProps) {
 
         {activeTab === "protonation" && (
           <div className="space-y-4">
-            {results?.protonation_states?.map((state: any, idx: number) => (
+            {results?.protonation_states?.map((state: ProtonationState, idx: number) => (
               <div key={idx} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium">State {state.state_id + 1}</h4>
@@ -171,7 +218,7 @@ export default function ResultsPanel({ jobId }: ResultsPanelProps) {
                   </span>
                 </div>
                 <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Probability: {(state.probability * 100).toFixed(1)}%
+                  Confidence: {(state.confidence * 100).toFixed(1)}%
                 </p>
                 <p className="text-xs font-mono mt-2 break-all">{state.smiles}</p>
               </div>
@@ -191,7 +238,7 @@ export default function ResultsPanel({ jobId }: ResultsPanelProps) {
             <div>
               <h4 className="font-medium mb-2">All Poses</h4>
               <div className="space-y-2">
-                {results?.docking_results?.poses?.map((pose: any, idx: number) => (
+                {results?.docking_results?.poses?.map((pose: DockingPose, idx: number) => (
                   <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
                     <span className="text-sm">Protonation State {pose.state + 1}</span>
                     <span className="font-mono">{pose.score.toFixed(2)} kcal/mol</span>
@@ -207,7 +254,7 @@ export default function ResultsPanel({ jobId }: ResultsPanelProps) {
       <div className="mt-4 p-3 bg-gray-900 dark:bg-gray-950 rounded text-xs">
         <p className="text-gray-400 mb-1">Reproduce via CLI:</p>
         <code className="text-green-400">
-          python main.py --smiles "{results?.molecule_info?.smiles}" --ph {jobResult.request?.ph_value}
+          python main.py --smiles &quot;{results?.molecule_info?.smiles}&quot; --ph {jobResult.request?.ph_value}
         </code>
       </div>
     </div>

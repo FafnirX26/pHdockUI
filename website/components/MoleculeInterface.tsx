@@ -9,9 +9,26 @@ import ResultsPanel from "./ResultsPanel";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+// Type definitions
+interface JobRequestData {
+  smiles?: string;
+  sdf_content?: string;
+  ph_value: number;
+  conformer_count: number;
+  ensemble_size: number;
+  quantum_fallback: boolean;
+  docking_backend: string;
+}
+
+interface JobResponse {
+  job_id: string;
+  status: string;
+}
+
 interface ExampleMolecule {
   name: string;
   smiles: string;
+  description: string;
 }
 
 export default function MoleculeInterface() {
@@ -40,9 +57,9 @@ export default function MoleculeInterface() {
 
   // Submit job mutation
   const submitJob = useMutation({
-    mutationFn: async (data: any) => {
+    mutationFn: async (data: JobRequestData) => {
       const response = await axios.post(`${API_URL}/api/jobs`, data);
-      return response.data;
+      return response.data as JobResponse;
     },
     onSuccess: (data) => {
       setJobId(data.job_id);
@@ -50,7 +67,7 @@ export default function MoleculeInterface() {
   });
 
   const handleSubmit = async () => {
-    let jobData: any = { ...settings };
+    const jobData: JobRequestData = { ...settings };
 
     if (smilesInput) {
       jobData.smiles = smilesInput;

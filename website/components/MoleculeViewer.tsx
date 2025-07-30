@@ -10,7 +10,7 @@ export default function MoleculeViewer({ className = "", smiles }: MoleculeViewe
   // For now, we'll show a placeholder
   
   return (
-    <div className={`flex items-center justify-center ${className}`}>
+    <div className={`flex items-center justify-center ${className}`} title={smiles ? `SMILES: ${smiles}` : "Molecule structure"}>
       <Atom size={64} className="text-blue-500" />
     </div>
   );
