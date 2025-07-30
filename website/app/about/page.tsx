@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Lightbulb, Target, Users } from "lucide-react";
 
 export default function AboutPage() {
@@ -34,7 +33,7 @@ export default function AboutPage() {
             <Target className="mx-auto mb-4 text-blue-600" size={48} />
             <h2 className="text-2xl font-semibold mb-4">Our Mission</h2>
             <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-              We're advancing computational drug discovery by accounting for pH-dependent 
+              We&apos;re advancing computational drug discovery by accounting for pH-dependent 
               molecular behavior. Traditional docking tools often overlook protonation states, 
               leading to inaccurate predictions. Our suite bridges this gap with state-of-the-art 
               machine learning and quantum-informed models.

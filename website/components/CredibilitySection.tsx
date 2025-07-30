@@ -53,7 +53,7 @@ export default function CredibilitySection() {
                 className="block p-3 bg-gray-50 dark:bg-gray-800 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
               >
                 <p className="font-medium text-blue-600 dark:text-blue-400">
-                  "pH-aware ensemble docking with ML pKa prediction"
+                  &quot;pH-aware ensemble docking with ML pKa prediction&quot;
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   J. Chem. Inf. Model. 2024 (in review)

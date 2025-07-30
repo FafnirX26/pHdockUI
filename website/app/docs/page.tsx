@@ -1,5 +1,4 @@
 import { Terminal, Download, Book, Github, ExternalLink } from "lucide-react";
-import Link from "next/link";
 
 export default function DocsPage() {
   return (

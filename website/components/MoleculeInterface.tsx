@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Upload, Loader2, Download, ChevronRight, Settings } from "lucide-react";
+import { Upload, Loader2, ChevronRight, Settings } from "lucide-react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import MoleculeViewer from "./MoleculeViewer";

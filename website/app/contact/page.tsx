@@ -54,7 +54,7 @@ export default function ContactPage() {
           <div>
             <h2 className="text-2xl font-semibold mb-6">Get in Touch</h2>
             <p className="text-gray-600 dark:text-gray-400 mb-8">
-              We're excited to hear from researchers interested in collaboration, 
+              We&apos;re excited to hear from researchers interested in collaboration, 
               using our tools, or contributing to the project.
             </p>
 
