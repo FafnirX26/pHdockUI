@@ -6,7 +6,7 @@
 FROM python:3.9-slim AS runtime
 
 # Install system-level dependencies required by RDKit and friends
-RUN apt-get update \ \
+RUN apt-get update \
     && apt-get install -y --no-install-recommends \
        libboost-all-dev \
        libcairo2 \
