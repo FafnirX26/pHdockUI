@@ -106,7 +106,11 @@ def mock_protonate_ligand(mol, ph=7.4, pka_values=None):
 
 @app.get("/")
 async def root():
-    return {"message": "pH Docking API is running", "modules_available": MODULES_AVAILABLE}
+    return {"message": "pH Docking API is running", "modules_available": MODULES_AVAILABLE, "status": "healthy"}
+
+@app.get("/health")
+async def health_check():
+    return {"status": "healthy", "modules_available": MODULES_AVAILABLE}
 
 @app.post("/api/jobs", response_model=JobResponse)
 async def create_job(request: JobRequest, background_tasks: BackgroundTasks):
@@ -297,4 +301,5 @@ async def get_example_molecules():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000) 
+    port = int(os.getenv("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port) 
