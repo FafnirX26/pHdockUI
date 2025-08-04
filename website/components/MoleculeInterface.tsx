@@ -96,7 +96,7 @@ export default function MoleculeInterface() {
   };
 
   return (
-    <section id="molecule-interface" className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
+    <section id="molecule-interface" className="py-20 px-4 bg-white dark:bg-gray-900">
       <div className="container mx-auto max-w-7xl">
         <h2 className="text-3xl font-bold text-center mb-12">Interactive pH Docking Analysis</h2>
         

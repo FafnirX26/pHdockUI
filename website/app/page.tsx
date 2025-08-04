@@ -1,13 +1,15 @@
 import Hero from "@/components/Hero";
-import MoleculeInterface from "@/components/MoleculeInterface";
+import TeamSection from "@/components/TeamSection";
 import CredibilitySection from "@/components/CredibilitySection";
+import MoleculeInterface from "@/components/MoleculeInterface";
 
 export default function Home() {
   return (
     <div className="min-h-screen">
       <Hero />
-      <MoleculeInterface />
+      <TeamSection />
       <CredibilitySection />
+      <MoleculeInterface />
     </div>
   );
 }

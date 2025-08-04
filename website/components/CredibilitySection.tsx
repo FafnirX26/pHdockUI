@@ -2,7 +2,7 @@ import { BarChart, Award, BookOpen } from "lucide-react";
 
 export default function CredibilitySection() {
   return (
-    <section className="py-20 px-4 bg-white dark:bg-gray-900">
+    <section className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
       <div className="container mx-auto max-w-6xl">
         <h2 className="text-3xl font-bold text-center mb-12">Validated Performance</h2>
         
