@@ -825,26 +825,53 @@ def predict_pka_ensemble(mol: Chem.Mol, ensemble_size: int = 5) -> Dict[str, Any
         from rdkit.Chem import Fragments
         
         # Check for ionizable groups
-        carboxylic_acids = Fragments.fr_COO(mol) + Fragments.fr_COOH(mol)
-        phenols = Fragments.fr_phenol(mol)
+        carboxylic_acids = Fragments.fr_COO(mol) + Fragments.fr_COO2(mol)
+        phenols = Fragments.fr_phenol(mol) + Fragments.fr_Ar_OH(mol)
         amines = Fragments.fr_NH2(mol) + Fragments.fr_NH1(mol) + Fragments.fr_NH0(mol)
         
+        # Additional ionizable groups
+        guanidines = Fragments.fr_guanido(mol)
+        imidazoles = Fragments.fr_imidazole(mol)
+        alcohols = Fragments.fr_Al_OH(mol)
+        
         site_pkas = []
+        atom_idx = 0
         
         # Carboxylic acid pKa (typically 3-5)
         if carboxylic_acids > 0:
             pka = 4.2 + random.uniform(-0.5, 0.5)
-            site_pkas.append({'pka': pka, 'atom_idx': 0})
+            site_pkas.append({'pka': pka, 'atom_idx': atom_idx})
+            atom_idx += 1
         
         # Phenol pKa (typically 8-11)
         if phenols > 0:
             pka = 9.8 + random.uniform(-0.5, 0.5)
-            site_pkas.append({'pka': pka, 'atom_idx': 1})
+            site_pkas.append({'pka': pka, 'atom_idx': atom_idx})
+            atom_idx += 1
         
         # Amine pKa (typically 9-11)
         if amines > 0:
             pka = 10.2 + random.uniform(-0.5, 0.5)
-            site_pkas.append({'pka': pka, 'atom_idx': 2})
+            site_pkas.append({'pka': pka, 'atom_idx': atom_idx})
+            atom_idx += 1
+        
+        # Guanidine pKa (typically 12-13)
+        if guanidines > 0:
+            pka = 12.5 + random.uniform(-0.3, 0.3)
+            site_pkas.append({'pka': pka, 'atom_idx': atom_idx})
+            atom_idx += 1
+        
+        # Imidazole pKa (typically 6-7)
+        if imidazoles > 0:
+            pka = 6.5 + random.uniform(-0.5, 0.5)
+            site_pkas.append({'pka': pka, 'atom_idx': atom_idx})
+            atom_idx += 1
+        
+        # Alcohol pKa (typically 15-16, usually not ionizable at physiological pH)
+        if alcohols > 0:
+            pka = 15.5 + random.uniform(-0.5, 0.5)
+            site_pkas.append({'pka': pka, 'atom_idx': atom_idx})
+            atom_idx += 1
         
         # If no ionizable groups found, return None
         if not site_pkas:
