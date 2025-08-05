@@ -449,6 +449,36 @@ def generate_conformer_ensemble(molecules: List[Chem.Mol],
     return results
 
 
+# Wrapper function for backend compatibility
+def generate_conformers(mol: Chem.Mol, n_conformers: int = 10) -> List[str]:
+    """
+    Wrapper function to generate conformers for backend compatibility.
+    
+    Args:
+        mol: RDKit molecule object
+        n_conformers: Number of conformers to generate
+        
+    Returns:
+        List of conformer identifiers (simplified for backend)
+    """
+    generator = ConformerGenerator()
+    
+    try:
+        # Generate conformers using the class method
+        mol_with_conformers = generator.generate_conformers(mol)
+        
+        if mol_with_conformers is None:
+            return []
+        
+        # Return simple conformer identifiers
+        num_conformers = mol_with_conformers.GetNumConformers()
+        return [f"conformer_{i}" for i in range(min(num_conformers, n_conformers))]
+    
+    except Exception as e:
+        logging.error(f"Failed to generate conformers: {e}")
+        return []
+
+
 if __name__ == "__main__":
     # Example usage
     logging.basicConfig(level=logging.INFO)

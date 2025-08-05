@@ -997,3 +997,51 @@ if __name__ == "__main__":
         print(f"\nGenerated plots: {list(plot_paths.keys())}")
     
     print("\nModelEvaluator test completed successfully!")
+
+
+# Wrapper function for backend compatibility
+def evaluate_model_performance(predictions: List[float], targets: List[float]) -> Dict[str, Any]:
+    """
+    Wrapper function to evaluate model performance for backend compatibility.
+    
+    Args:
+        predictions: List of predicted values
+        targets: List of target values
+        
+    Returns:
+        Dictionary with evaluation metrics
+    """
+    import numpy as np
+    from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
+    
+    try:
+        if len(predictions) != len(targets):
+            raise ValueError("Predictions and targets must have same length")
+        
+        if len(predictions) == 0:
+            return {"error": "No data provided for evaluation"}
+        
+        pred_array = np.array(predictions)
+        target_array = np.array(targets)
+        
+        # Calculate basic metrics
+        r2 = r2_score(target_array, pred_array)
+        mae = mean_absolute_error(target_array, pred_array)
+        rmse = np.sqrt(mean_squared_error(target_array, pred_array))
+        
+        return {
+            'r2': r2,
+            'mae': mae,
+            'rmse': rmse,
+            'n_samples': len(predictions)
+        }
+        
+    except Exception as e:
+        logging.error(f"Model evaluation failed: {e}")
+        return {
+            'r2': 0.0,
+            'mae': 1.0,
+            'rmse': 1.0,
+            'n_samples': 0,
+            'error': str(e)
+        }

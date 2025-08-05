@@ -318,6 +318,56 @@ def process_input_file(input_path: Union[str, Path],
     return results
 
 
+# Wrapper function for backend compatibility
+def process_input(input_data: Union[str, Path], input_type: str = "smiles") -> Dict[str, Any]:
+    """
+    Wrapper function to process molecular input for backend compatibility.
+    
+    Args:
+        input_data: SMILES string or file path
+        input_type: "smiles" or "sdf"
+        
+    Returns:
+        Dictionary with molecule data
+    """
+    processor = MoleculeProcessor()
+    
+    if input_type == "smiles":
+        # Process single SMILES
+        mol = Chem.MolFromSmiles(str(input_data))
+        if mol is None:
+            raise ValueError(f"Invalid SMILES: {input_data}")
+        
+        mol = processor.standardize_molecule(mol)
+        if mol is None:
+            raise ValueError(f"Failed to standardize molecule: {input_data}")
+        
+        return {
+            'mol': mol,
+            'smiles': Chem.MolToSmiles(mol),
+            'name': 'Unknown',
+            'molecular_weight': Descriptors.MolWt(mol)
+        }
+    
+    elif input_type == "sdf":
+        # Process SDF file
+        results = processor.process_sdf_file(Path(input_data))
+        if not results['molecules'] or len(results['molecules']) == 0:
+            raise ValueError(f"No valid molecules found in file: {input_data}")
+        
+        # Return first molecule
+        mol = results['molecules'][0]
+        return {
+            'mol': mol,
+            'smiles': Chem.MolToSmiles(mol),
+            'name': results.get('mol_names', ['Unknown'])[0],
+            'molecular_weight': Descriptors.MolWt(mol)
+        }
+    
+    else:
+        raise ValueError(f"Unsupported input type: {input_type}")
+
+
 if __name__ == "__main__":
     # Example usage
     logging.basicConfig(level=logging.INFO)
