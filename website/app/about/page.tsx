@@ -3,36 +3,36 @@ import { Lightbulb, Target, Users } from "lucide-react";
 export default function AboutPage() {
   const teamMembers = [
     {
-      name: "Team Member 1",
+      name: "Ravindra Lakkireddi",
       role: "Lead Developer",
-      bio: "PhD in Computational Chemistry with expertise in molecular modeling and machine learning.",
+      bio: "Head of training, scoring, and data collection, handling abalation studies as well as quantum integration",
       image: "/team/member1.jpg"
     },
     {
-      name: "Team Member 2", 
+      name: "Gianluca Radice", 
       role: "ML Engineer",
-      bio: "Specializes in graph neural networks and chemical property prediction.",
+      bio: "Defined the frameworks for the GCNNs used, lead efforts for constructing a full pipeline from SMILE to website output",
       image: "/team/member2.jpg"
     },
     {
-      name: "Team Member 3",
+      name: "Denis Motuzenko",
       role: "Research Scientist",
-      bio: "Background in drug discovery and molecular docking methodologies.",
+      bio: "Conceptual and chemical leader, engaged with the interpretation layer and organized quantum logic",
       image: "/team/member3.jpg"
     }
   ];
 
   return (
-    <div className="min-h-screen py-20 px-4">
+    <div className="min-h-screen py-20 px-4 bg-transparent">
       <div className="container mx-auto max-w-6xl">
-        <h1 className="text-4xl font-bold text-center mb-12">About pHdockUI</h1>
+        <h1 className="text-4xl font-bold text-center mb-12 inline-block rounded-lg border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur px-3 py-1">About pHdockUI</h1>
 
         {/* Mission Section */}
         <section className="mb-16">
           <div className="max-w-3xl mx-auto text-center">
             <Target className="mx-auto mb-4 text-blue-600" size={48} />
-            <h2 className="text-2xl font-semibold mb-4">Our Mission</h2>
-            <p className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
+            <h2 className="text-2xl font-semibold mb-4 inline-block rounded border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur px-2 py-0.5">Our Mission</h2>
+            <p className="text-lg text-gray-800 dark:text-gray-100 leading-relaxed inline-block rounded border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur px-2 py-0.5">
               We&apos;re advancing computational drug discovery by accounting for pH-dependent 
               molecular behavior. Traditional docking tools often overlook protonation states, 
               leading to inaccurate predictions. Our suite bridges this gap with state-of-the-art 
@@ -42,13 +42,13 @@ export default function AboutPage() {
         </section>
 
         {/* Inspiration Section */}
-        <section className="mb-16 bg-gray-50 dark:bg-gray-800 rounded-2xl p-8">
+        <section className="mb-16 rounded-2xl p-8 border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur">
           <div className="max-w-3xl mx-auto">
             <div className="flex items-center gap-3 mb-4">
               <Lightbulb className="text-yellow-500" size={32} />
               <h2 className="text-2xl font-semibold">Our Inspiration</h2>
             </div>
-            <div className="space-y-4 text-gray-700 dark:text-gray-300">
+            <div className="space-y-4 text-gray-800 dark:text-gray-100">
               <p>
                 The project emerged from observing critical failures in drug discovery pipelines 
                 where promising candidates failed due to incorrect protonation state modeling. 
@@ -74,7 +74,7 @@ export default function AboutPage() {
           <div className="text-center mb-12">
             <Users className="mx-auto mb-4 text-purple-600" size={48} />
             <h2 className="text-2xl font-semibold">Meet Our Team</h2>
-            <p className="text-gray-600 dark:text-gray-400 mt-2">
+            <p className="text-gray-700 dark:text-gray-100 mt-2 inline-block rounded border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur px-2 py-0.5">
               Passionate researchers dedicated to advancing computational chemistry
             </p>
           </div>
@@ -85,9 +85,9 @@ export default function AboutPage() {
                 <div className="w-48 h-48 mx-auto mb-4 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
                   <Users className="text-gray-400" size={64} />
                 </div>
-                <h3 className="text-xl font-semibold mb-1">{member.name}</h3>
-                <p className="text-blue-600 dark:text-blue-400 mb-3">{member.role}</p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">{member.bio}</p>
+                <h3 className="text-2xl md:text-3xl font-extrabold mb-1 text-gray-900 dark:text-white">{member.name}</h3>
+                <p className="text-lg md:text-xl text-blue-700 dark:text-blue-300 mb-3">{member.role}</p>
+                <p className="text-base text-gray-900 dark:text-white leading-snug">{member.bio}</p>
               </div>
             ))}
           </div>
@@ -98,26 +98,19 @@ export default function AboutPage() {
           <h2 className="text-2xl font-semibold text-center mb-8">Academic Affiliations</h2>
           <div className="flex flex-wrap justify-center gap-8 items-center">
             <div className="text-center">
-              <div className="text-2xl font-bold text-gray-400">Your University</div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Department of Chemistry</p>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-gray-400">Research Institute</div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Computational Biology Lab</p>
+              <div className="text-2xl font-bold text-gray-700 dark:text-gray-100 inline-block rounded border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur px-2 py-0.5">Poolesville High School</div>
+              <p className="text-sm text-gray-700 dark:text-gray-200">Science, Math, and Computer Science Magnet Program (SMCS)</p>
             </div>
           </div>
         </section>
 
         {/* Acknowledgments */}
-        <section className="bg-gray-50 dark:bg-gray-800 rounded-2xl p-8">
+        <section className="rounded-2xl p-8 border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur">
           <h2 className="text-2xl font-semibold mb-4">Acknowledgments</h2>
-          <p className="text-gray-700 dark:text-gray-300">
+          <p className="text-gray-800 dark:text-gray-100">
             We thank our advisors, collaborators, and the open-source community for their 
             invaluable contributions. Special thanks to the developers of RDKit, PyTorch Geometric, 
             and AutoDock for providing the foundation upon which this work builds.
-          </p>
-          <p className="text-gray-700 dark:text-gray-300 mt-4">
-            This research was supported by [Grant Agency] under award number [XXX].
           </p>
         </section>
       </div>

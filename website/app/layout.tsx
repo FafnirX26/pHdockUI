@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navigation from "@/components/Navigation";
+import BackgroundSwirl from "@/components/BackgroundSwirl";
 import { Providers } from "@/components/Providers";
 
 const inter = Inter({
@@ -32,7 +33,8 @@ export default function RootLayout({
         className={`${inter.variable} font-sans antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100`}
       >
         <Providers>
-          <div className="min-h-screen flex flex-col">
+          <div className="min-h-screen flex flex-col relative">
+            <BackgroundSwirl />
             <Navigation />
             <main className="flex-1">
               {children}

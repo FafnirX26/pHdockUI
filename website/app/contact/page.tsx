@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import axios from "axios";
 import { Mail, MapPin, Send, CheckCircle } from "lucide-react";
 
 export default function ContactPage() {
@@ -17,12 +18,16 @@ export default function ContactPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    setIsSubmitting(false);
-    setIsSubmitted(true);
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      await axios.post(`${API_URL}/api/contact`, formData);
+      setIsSubmitted(true);
+    } catch (err) {
+      console.error("Contact submit failed", err);
+      alert("Failed to send message. Please try again later.");
+    } finally {
+      setIsSubmitting(false);
+    }
     
     // Reset form after 3 seconds
     setTimeout(() => {
@@ -45,15 +50,15 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen py-20 px-4">
+    <div className="min-h-screen py-20 px-4 bg-transparent">
       <div className="container mx-auto max-w-4xl">
-        <h1 className="text-4xl font-bold text-center mb-12">Contact Us</h1>
+        <h1 className="text-4xl font-bold text-center mb-12 inline-block rounded-lg border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur px-3 py-1">Contact Us</h1>
 
         <div className="grid md:grid-cols-2 gap-12">
           {/* Contact Information */}
           <div>
             <h2 className="text-2xl font-semibold mb-6">Get in Touch</h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-8">
+            <p className="text-gray-700 dark:text-gray-100 mb-8 inline-block rounded border border-black/10 dark:border-white/10 bg-white/40 dark:bg-black/30 backdrop-blur px-2 py-0.5">
               We&apos;re excited to hear from researchers interested in collaboration, 
               using our tools, or contributing to the project.
             </p>
@@ -63,8 +68,8 @@ export default function ContactPage() {
                 <Mail className="text-blue-600 mt-1" size={20} />
                 <div>
                   <h3 className="font-medium">Email</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    phdockui@youruniversity.edu
+                  <p className="text-gray-800 dark:text-white font-medium">
+                    phdockteam@gmail.com
                   </p>
                 </div>
               </div>
@@ -73,18 +78,18 @@ export default function ContactPage() {
                 <MapPin className="text-blue-600 mt-1" size={20} />
                 <div>
                   <h3 className="font-medium">Location</h3>
-                  <p className="text-gray-600 dark:text-gray-400">
-                    Department of Chemistry<br />
-                    Your University<br />
-                    City, State ZIP
+                  <p className="text-gray-800 dark:text-white font-medium">
+                    Poolesville High School (SMCS Program)<br />
+                    17501 W Willard Rd<br />
+                    Poolesville, MD 20837
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className="mt-8 p-6 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <div className="mt-8 p-6 rounded-lg border border-blue-500/30 dark:border-blue-300/30 bg-blue-50/60 dark:bg-blue-900/20 backdrop-blur">
               <h3 className="font-medium mb-2">Collaboration Opportunities</h3>
-              <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-300">
+              <ul className="text-sm space-y-1 text-gray-700 dark:text-gray-100">
                 <li>• Academic research partnerships</li>
                 <li>• Industry collaborations</li>
                 <li>• Student internships</li>

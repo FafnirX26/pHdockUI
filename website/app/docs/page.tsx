@@ -19,7 +19,7 @@ export default function DocsPage() {
                 <code>{`pip install phdockui
 
 # Or install from source
-git clone https://github.com/yourusername/pHdockUI.git
+git clone https://github.com/DBD808/pHdockUI.git
 cd pHdockUI
 pip install -e .`}</code>
               </pre>
@@ -70,7 +70,7 @@ phdock --sdf ligand.sdf \\
             <Book className="text-purple-600" size={24} />
             API Reference
           </h2>
-          <div className="space-y-6">
+          <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-6 space-y-6">
             <div className="border-l-4 border-blue-500 pl-4">
               <h3 className="font-mono font-semibold">pHDocking()</h3>
               <p className="text-gray-600 dark:text-gray-400 mt-1">
@@ -110,7 +110,7 @@ phdock --sdf ligand.sdf \\
           </h2>
           <div className="grid md:grid-cols-2 gap-4">
             <a
-              href="https://github.com/yourusername/pHdockUI"
+              href="https://github.com/DBD808/pHdockUI.git"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -127,34 +127,10 @@ phdock --sdf ligand.sdf \\
               href="#"
               className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
-              <Book size={24} />
-              <div>
-                <h3 className="font-medium">Example Notebooks</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Jupyter tutorials</p>
-              </div>
-              <ExternalLink size={16} className="ml-auto" />
-            </a>
-
-            <a
-              href="#"
-              className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
               <Download size={24} />
               <div>
                 <h3 className="font-medium">Test Dataset</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Sample molecules</p>
-              </div>
-              <ExternalLink size={16} className="ml-auto" />
-            </a>
-
-            <a
-              href="#"
-              className="flex items-center gap-3 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-            >
-              <Terminal size={24} />
-              <div>
-                <h3 className="font-medium">Docker Image</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Pre-configured container</p>
               </div>
               <ExternalLink size={16} className="ml-auto" />
             </a>

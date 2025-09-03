@@ -3,28 +3,28 @@ import { Users } from "lucide-react";
 export default function TeamSection() {
   const teamMembers = [
     {
-      name: "Team Member 1",
-      role: "Lead Developer",
+      name: "Ravindra Lakkireddi",
+      role: "Head of training, scoring, and data; ablation & quantum integration",
       image: "/team/member1.jpg"
     },
     {
-      name: "Team Member 2", 
-      role: "ML Engineer",
+      name: "Gianluca Radice", 
+      role: "Defined GCNN frameworks; led SMILES→web pipeline",
       image: "/team/member2.jpg"
     },
     {
-      name: "Team Member 3",
-      role: "Research Scientist",
+      name: "Denis Motuzenko",
+      role: "Conceptual & chemical lead; interpretation layer & quantum logic",
       image: "/team/member3.jpg"
     }
   ];
 
   return (
-    <section className="py-20 px-4 bg-white dark:bg-gray-900">
+    <section className="h-screen flex items-center justify-center px-4 bg-transparent">
       <div className="container mx-auto max-w-6xl">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4">Meet Our Team</h2>
-          <p className="text-gray-600 dark:text-gray-400">
+          <p className="text-gray-700 dark:text-gray-100">
             Passionate researchers dedicated to advancing computational chemistry
           </p>
         </div>
@@ -39,15 +39,15 @@ export default function TeamSection() {
             >
               {/* Photo */}
               <div className="flex-shrink-0">
-                <div className="w-32 h-32 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center">
-                  <Users className="text-gray-400" size={48} />
+                <div className="w-40 h-40 md:w-48 md:h-48 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center shadow-md">
+                  <Users className="text-gray-500 dark:text-gray-300" size={64} />
                 </div>
               </div>
               
               {/* Info */}
               <div className={`text-center md:text-left ${index % 2 === 1 ? 'md:text-right' : ''}`}>
-                <h3 className="text-2xl font-bold mb-2">{member.name}</h3>
-                <p className="text-xl text-blue-600 dark:text-blue-400">{member.role}</p>
+                <h3 className="text-3xl md:text-4xl font-extrabold mb-2 text-gray-900 dark:text-white">{member.name}</h3>
+                <p className="text-2xl md:text-2xl text-blue-700 dark:text-blue-300 leading-snug">{member.role}</p>
               </div>
             </div>
           ))}

@@ -2,7 +2,7 @@ import { BarChart, Award, BookOpen } from "lucide-react";
 
 export default function CredibilitySection() {
   return (
-    <section className="py-20 px-4 bg-gray-50 dark:bg-gray-800">
+    <section className="h-screen flex items-center justify-center px-4 bg-gray-50 dark:bg-gray-800">
       <div className="container mx-auto max-w-6xl">
         <h2 className="text-3xl font-bold text-center mb-12">Validated Performance</h2>
         
@@ -11,7 +11,7 @@ export default function CredibilitySection() {
           <div className="text-center">
             <BarChart className="mx-auto mb-4 text-blue-600" size={48} />
             <h3 className="text-xl font-semibold mb-2">Benchmark Results</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 dark:text-gray-100 mb-4">
               Outperforms commercial tools with ±0.5 pKa RMSE on standard datasets
             </p>
             <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
@@ -30,10 +30,10 @@ export default function CredibilitySection() {
           <div className="text-center">
             <Award className="mx-auto mb-4 text-purple-600" size={48} />
             <h3 className="text-xl font-semibold mb-2">Recognition</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 dark:text-gray-100 mb-4">
               Presented at leading computational chemistry conferences
             </p>
-            <ul className="text-sm space-y-2 text-gray-700 dark:text-gray-300">
+            <ul className="text-sm space-y-2 text-gray-700 dark:text-gray-100">
               <li>• ACS National Meeting 2024</li>
               <li>• Gordon Research Conference</li>
               <li>• SAMPL9 Challenge Participant</li>
@@ -44,7 +44,7 @@ export default function CredibilitySection() {
           <div className="text-center">
             <BookOpen className="mx-auto mb-4 text-green-600" size={48} />
             <h3 className="text-xl font-semibold mb-2">Publications</h3>
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-gray-600 dark:text-gray-100 mb-4">
               Peer-reviewed research backing our methods
             </p>
             <div className="text-sm space-y-2">
@@ -55,8 +55,8 @@ export default function CredibilitySection() {
                 <p className="font-medium text-blue-600 dark:text-blue-400">
                   &quot;pH-aware ensemble docking with ML pKa prediction&quot;
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                  J. Chem. Inf. Model. 2024 (in review)
+                <p className="text-xs text-gray-500 dark:text-gray-300 mt-1">
+                  Source: https://github.com/DBD808/pHdockUI.git
                 </p>
               </a>
             </div>

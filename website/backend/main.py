@@ -11,6 +11,8 @@ import json
 import time
 from datetime import datetime
 import asyncio
+import smtplib
+from email.message import EmailMessage
 
 # Add parent directory to path to import the main project modules
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -46,6 +48,8 @@ app.add_middleware(
 
 # In-memory job storage (replace with Redis in production)
 jobs_db = {}
+# Simple in-memory store for contact messages (replace with DB in production)
+contacts_db: List[Dict[str, Any]] = []
 
 class JobRequest(BaseModel):
     smiles: Optional[str] = None
@@ -69,6 +73,18 @@ class JobResult(BaseModel):
     error: Optional[str] = None
     created_at: datetime
     completed_at: Optional[datetime] = None
+
+class ContactRequest(BaseModel):
+    name: str
+    email: str
+    institution: Optional[str] = None
+    subject: str
+    message: str
+
+class ContactResponse(BaseModel):
+    id: str
+    status: str
+    received_at: datetime
 
 # Mock implementations for when modules are not available
 def mock_process_input(input_data, input_type="smiles"):
@@ -111,6 +127,84 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "modules_available": MODULES_AVAILABLE}
+
+@app.post("/api/contact", response_model=ContactResponse)
+async def submit_contact(request: ContactRequest):
+    """Receive a contact form submission"""
+    contact_id = str(uuid.uuid4())
+    record = {
+        "id": contact_id,
+        "name": request.name,
+        "email": request.email,
+        "institution": request.institution,
+        "subject": request.subject,
+        "message": request.message,
+        "received_at": datetime.now(),
+    }
+    contacts_db.append(record)
+
+    # Append to a local file for persistence during demos
+    try:
+        log_path = Path(__file__).parent / "contact_messages.jsonl"
+        with open(log_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps({
+                "id": record["id"],
+                "name": record["name"],
+                "email": record["email"],
+                "institution": record["institution"],
+                "subject": record["subject"],
+                "message": record["message"],
+                "received_at": record["received_at"].isoformat(),
+            }) + "\n")
+    except Exception as e:
+        # Non-fatal in demo mode
+        print(f"Warning: failed to persist contact message: {e}")
+
+    # Attempt to send email notification if SMTP environment is configured
+    try:
+        smtp_host = os.getenv("SMTP_HOST", "smtp.gmail.com")
+        smtp_port = int(os.getenv("SMTP_PORT", "587"))
+        smtp_user = os.getenv("SMTP_USER")
+        smtp_pass = os.getenv("SMTP_PASS")
+        smtp_from = os.getenv("SMTP_FROM", os.getenv("SMTP_USER", ""))
+        smtp_to = os.getenv("SMTP_TO", "phdockteam@gmail.com")
+
+        if smtp_user and smtp_pass and smtp_from:
+            msg = EmailMessage()
+            msg["Subject"] = f"[pHdockUI Contact] {request.subject}"
+            msg["From"] = smtp_from
+            msg["To"] = smtp_to
+            # Make replies go to the user who filled the form
+            if request.email:
+                msg["Reply-To"] = request.email
+            body_lines = [
+                f"New contact message (ID: {contact_id})",
+                "",
+                f"Name: {request.name}",
+                f"Email: {request.email}",
+                f"Institution: {request.institution or '-'}",
+                f"Subject: {request.subject}",
+                "",
+                "Message:",
+                request.message,
+                "",
+                f"Received at: {record['received_at'].isoformat()}",
+            ]
+            msg.set_content("\n".join(body_lines))
+
+            with smtplib.SMTP(smtp_host, smtp_port, timeout=15) as server:
+                server.ehlo()
+                if smtp_port == 587:
+                    server.starttls()
+                    server.ehlo()
+                server.login(smtp_user, smtp_pass)
+                server.send_message(msg)
+        else:
+            print("SMTP not configured; skipping email send. Set SMTP_USER/SMTP_PASS/SMTP_FROM to enable.")
+    except Exception as e:
+        print(f"Warning: failed to send contact email: {e}")
+
+    return ContactResponse(id=contact_id, status="received", received_at=record["received_at"])
 
 @app.post("/api/jobs", response_model=JobResponse)
 async def create_job(request: JobRequest, background_tasks: BackgroundTasks):
