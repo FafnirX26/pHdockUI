@@ -19,8 +19,7 @@ export default function ContactPage() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      await axios.post(`${API_URL}/api/contact`, formData);
+      await axios.post(`/api/contact`, formData);
       setIsSubmitted(true);
     } catch (err) {
       console.error("Contact submit failed", err);

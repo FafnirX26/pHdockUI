@@ -5,7 +5,7 @@ import axios from "axios";
 import { Loader2, Download, AlertCircle } from "lucide-react";
 import { useState } from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// use same-origin Next.js API routes
 
 // Type definitions
 interface SitePka {
@@ -64,7 +64,7 @@ export default function ResultsPanel({ jobId }: ResultsPanelProps) {
   const { data: jobResult, isLoading } = useQuery<JobData>({
     queryKey: ["job", jobId],
     queryFn: async () => {
-      const response = await axios.get(`${API_URL}/api/jobs/${jobId}`);
+      const response = await axios.get(`/api/jobs/${jobId}`);
       return response.data as JobData;
     },
     refetchInterval: (query) => {

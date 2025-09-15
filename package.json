@@ -1,0 +1,13 @@
+{
+  "name": "phdockui",
+  "version": "1.0.0",
+  "description": "pH-aware molecular docking suite",
+  "scripts": {
+    "build-replicate": "cd replicate && cog build",
+    "push-replicate": "cd replicate && cog push dbd808/phdock"
+  },
+  "devDependencies": {
+    "nodemailer": "^6.9.8",
+    "@types/nodemailer": "^6.4.14"
+  }
+}
