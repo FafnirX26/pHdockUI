@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(
   _req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const token = process.env.REPLICATE_API_TOKEN;
@@ -10,7 +10,7 @@ export async function GET(
       return NextResponse.json({ error: "REPLICATE_API_TOKEN not set" }, { status: 500 });
     }
 
-    const id = params.id;
+    const { id } = await params;
     const res = await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
       headers: { Authorization: `Bearer ${token}` },
       cache: "no-store",
