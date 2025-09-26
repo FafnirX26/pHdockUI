@@ -1,6 +1,5 @@
 build:
   gpu: true
-  build.cog_runtime: true
   python_version: "3.10"
   system_packages:
     - libboost-all-dev
