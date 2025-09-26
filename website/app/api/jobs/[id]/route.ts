@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import Replicate from "replicate";
 
 export async function GET(
   _req: NextRequest,
@@ -10,35 +11,33 @@ export async function GET(
       return NextResponse.json({ error: "REPLICATE_API_TOKEN not set" }, { status: 500 });
     }
 
-    const { id } = await params;
-    const res = await fetch(`https://api.replicate.com/v1/predictions/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-      cache: "no-store",
+    // Initialize Replicate client
+    const replicate = new Replicate({
+      auth: token,
     });
-    if (!res.ok) {
-      const t = await res.text();
-      return NextResponse.json({ error: t }, { status: res.status });
-    }
-    type ReplicatePrediction = {
-      id: string;
-      status: string;
-      output?: unknown;
-      error?: string;
-      metrics?: { predict_time?: number };
-    };
-    const p: ReplicatePrediction = await res.json();
+
+    const { id } = await params;
+    
+    // Get prediction using Replicate library
+    const prediction = await replicate.predictions.get(id);
 
     // Normalize payload for UI: if completed with output, map to {status, progress, results}
-    let out: Record<string, unknown> = { status: p.status, progress: p.metrics?.predict_time ? 1.0 : 0.0 };
-    if (p.status === "succeeded" && typeof p.output !== "undefined") {
+    let out: Record<string, unknown> = { 
+      status: prediction.status, 
+      progress: prediction.metrics?.predict_time ? 1.0 : 0.0 
+    };
+    
+    if (prediction.status === "succeeded" && typeof prediction.output !== "undefined") {
       // Our predictor returns an object already matching UI expectations
-      return NextResponse.json(p.output);
-    } else if (p.error) {
-      out = { status: "failed", error: p.error, progress: 0 };
+      return NextResponse.json(prediction.output);
+    } else if (prediction.error) {
+      out = { status: "failed", error: prediction.error, progress: 0 };
     }
+    
     return NextResponse.json(out);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Unknown error";
+    console.error("Replicate get prediction error:", e);
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
