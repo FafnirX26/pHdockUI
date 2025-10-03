@@ -3,7 +3,7 @@ import { Users } from "lucide-react";
 export default function TeamSection() {
   const teamMembers = [
     {
-      name: "Ravindra Lakkireddy",
+      name: "Ravindra Lakkireddi",
       role: "Head of training, scoring, and data; ablation & quantum integration",
       image: "/team/member1.jpg"
     },
