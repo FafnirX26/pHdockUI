@@ -3,7 +3,7 @@ import { Lightbulb, Target, Users } from "lucide-react";
 export default function AboutPage() {
   const teamMembers = [
     {
-      name: "Ravindra Lakkireddi",
+      name: "Ravindra Lakkireddy",
       role: "Lead Developer",
       bio: "Head of training, scoring, and data collection, handling abalation studies as well as quantum integration",
       image: "/team/member1.jpg"
