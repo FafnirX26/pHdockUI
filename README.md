@@ -19,7 +19,9 @@ A state-of-the-art machine learning system for predicting molecular pKa values a
 
 ### Production-Ready Features
 - **pH-Aware Chemistry**: Protonation states from pH 1-14 with variable step optimization
-- **Docking Integration**: GNINA support with extensible framework
+- **Docking Integration**: GNINA support with extensible framework (see [DOCKING_GUIDE.md](DOCKING_GUIDE.md))
+- **Web API**: FastAPI backend with receptor management and job queue
+- **Interactive Frontend**: Next.js interface for molecule submission and visualization
 - **Model Persistence**: Saved models for immediate deployment
 - **Comprehensive Evaluation**: Performance metrics and validation framework
 
@@ -45,6 +47,10 @@ source phd/bin/activate  # On Windows: phd\Scripts\activate
 
 # Install dependencies
 pip install pandas numpy scikit-learn xgboost matplotlib seaborn rdkit torch
+
+# Install GNINA for docking (optional)
+# See GNINA_INSTALL.md for detailed instructions
+conda install -c conda-forge gnina
 ```
 
 ### Large Dataset Setup (Optional)
@@ -94,6 +100,10 @@ python main.py --input molecules.smi --fetch_large_data --use_batch_fetcher
 
 # Generate protonation states with optimized pH steps
 python main.py --input molecules.sdf --mode protonation_states --ph_min 1 --ph_max 14
+
+# Full pipeline with pH-aware docking
+python main.py --input molecules.smi --receptor receptors/example/1ATP.pdb \
+  --mode full_pipeline --docking_tool gnina --ph_min 6 --ph_max 8
 ```
 
 ### Model Training Options

@@ -58,7 +58,8 @@ class JobRequest(BaseModel):
     conformer_count: int = 10
     ensemble_size: int = 5
     quantum_fallback: bool = False
-    docking_backend: str = "autodock"
+    docking_backend: str = "gnina"
+    receptor_id: Optional[str] = "mock"  # Default to mock for now
 
 class JobResponse(BaseModel):
     job_id: str
@@ -111,12 +112,23 @@ def mock_predict_pka_ensemble(mol, ensemble_size=5):
 
 def mock_protonate_ligand(mol, ph=7.4, pka_values=None):
     import random
+    # Use the input SMILES as base, or aspirin as default
+    base_smiles = mol if isinstance(mol, str) else "CC(=O)Oc1ccccc1C(=O)O"
+
     states = []
-    for i in range(3):  # Generate 3 mock protonation states
+    # Generate 3 mock protonation states with actual SMILES variations
+    # These represent different protonation states of aspirin
+    smiles_variants = [
+        "CC(=O)Oc1ccccc1C(=O)O",      # Neutral aspirin
+        "CC(=O)Oc1ccccc1C(=O)[O-]",   # Deprotonated (anionic)
+        "CC(=O)Oc1ccccc1C(=O)O"       # Alternative neutral form
+    ]
+
+    for i in range(3):
         states.append({
-            'smiles': f"Mock_State_{i}_SMILES",
+            'smiles': smiles_variants[i] if i < len(smiles_variants) else base_smiles,
             'probability': random.uniform(0.1, 0.8),
-            'charge': random.choice([-1, 0, 1])
+            'charge': [-1, 0, 0][i] if i < 3 else 0
         })
     return states
 
@@ -127,6 +139,60 @@ async def root():
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "modules_available": MODULES_AVAILABLE}
+
+@app.get("/api/receptors")
+async def get_receptors():
+    """Get list of available receptors"""
+    receptors_dir = Path(__file__).parent.parent.parent / "receptors" / "example"
+    receptors = []
+
+    # Define metadata for example receptors
+    receptor_metadata = {
+        "1ATP": {
+            "id": "1ATP",
+            "name": "Cyclooxygenase-2 (COX-2)",
+            "pdb_id": "1ATP",
+            "description": "Aspirin and NSAID target",
+            "resolution": "2.8 Å",
+            "use_case": "Anti-inflammatory compound screening"
+        },
+        "3CL": {
+            "id": "3CL",
+            "name": "SARS-CoV-2 Main Protease",
+            "pdb_id": "6LU7",
+            "description": "COVID-19 main protease (Mpro)",
+            "resolution": "2.16 Å",
+            "use_case": "Antiviral drug screening"
+        },
+        "mock": {
+            "id": "mock",
+            "name": "Mock Receptor (No Real Docking)",
+            "pdb_id": "MOCK",
+            "description": "Returns simulated docking results without GNINA",
+            "resolution": "N/A",
+            "use_case": "Testing and demonstration"
+        }
+    }
+
+    # Check for actual PDB files
+    if receptors_dir.exists():
+        for pdb_file in receptors_dir.glob("*.pdb"):
+            receptor_id = pdb_file.stem
+            if receptor_id in receptor_metadata:
+                receptors.append({
+                    **receptor_metadata[receptor_id],
+                    "file_path": str(pdb_file),
+                    "available": True
+                })
+
+    # Always include mock receptor
+    receptors.append({
+        **receptor_metadata["mock"],
+        "file_path": None,
+        "available": True
+    })
+
+    return receptors
 
 @app.post("/api/contact", response_model=ContactResponse)
 async def submit_contact(request: ContactRequest):
@@ -336,15 +402,43 @@ async def process_job(job_id: str, request: JobRequest):
         
         jobs_db[job_id]["progress"] = 0.8
         await asyncio.sleep(1)
-        
-        # Mock docking results
-        docking_results = {
-            "best_score": -8.5,
-            "poses": [
-                {"state": i, "score": -8.5 + i * 0.2}
-                for i in range(len(protonation_states))
-            ]
-        }
+
+        # Run docking (real or mock based on receptor and availability)
+        receptor_path = None
+        if request.receptor_id and request.receptor_id != "mock":
+            receptors_dir = Path(__file__).parent.parent.parent / "receptors" / "example"
+            potential_receptor = receptors_dir / f"{request.receptor_id}.pdb"
+            if potential_receptor.exists():
+                receptor_path = str(potential_receptor)
+
+        # Use real docking if receptor is available and modules are loaded
+        if MODULES_AVAILABLE and receptor_path:
+            try:
+                docking_results = run_docking(
+                    protonation_states=protonation_states,
+                    receptor_path=receptor_path
+                )
+            except Exception as e:
+                print(f"Real docking failed, using mock: {e}")
+                docking_results = {
+                    "best_score": -8.5,
+                    "poses": [
+                        {"state": i, "score": -8.5 + i * 0.2}
+                        for i in range(len(protonation_states))
+                    ],
+                    "error": f"Docking failed: {str(e)}"
+                }
+        else:
+            # Mock docking results
+            import random
+            docking_results = {
+                "best_score": -8.5,
+                "poses": [
+                    {"state": i, "score": -8.5 + i * 0.2 + random.uniform(-0.5, 0.5)}
+                    for i in range(len(protonation_states))
+                ],
+                "receptor_used": request.receptor_id or "mock"
+            }
         
         # Compile results
         results = {
@@ -363,6 +457,7 @@ async def process_job(job_id: str, request: JobRequest):
                     "state_id": i,
                     "smiles": state.get('smiles', ''),
                     "probability": state.get('probability', 0),
+                    "confidence": state.get('probability', 0),  # Use probability as confidence
                     "charge": state.get('charge', 0)
                 }
                 for i, state in enumerate(protonation_states)
@@ -392,6 +487,60 @@ async def get_example_molecules():
         {"name": "Dopamine", "smiles": "NCCc1ccc(O)c(O)c1"},
         {"name": "Serotonin", "smiles": "NCCc1c[nH]c2ccc(O)cc12"}
     ]
+
+@app.get("/api/receptors/{receptor_id}/pdb")
+async def get_receptor_pdb(receptor_id: str):
+    """Get PDB file content for a receptor"""
+    receptors_dir = Path(__file__).parent.parent.parent / "receptors" / "example"
+    pdb_file = receptors_dir / f"{receptor_id}.pdb"
+
+    if not pdb_file.exists():
+        raise HTTPException(status_code=404, detail="Receptor PDB file not found")
+
+    with open(pdb_file, 'r') as f:
+        pdb_content = f.read()
+
+    return {"receptor_id": receptor_id, "pdb_content": pdb_content}
+
+@app.get("/api/jobs/{job_id}/ligand-pdb")
+async def get_ligand_pdb(job_id: str, state_id: int = 0):
+    """Get PDB representation of ligand for a specific protonation state"""
+    if job_id not in jobs_db:
+        raise HTTPException(status_code=404, detail="Job not found")
+
+    job = jobs_db[job_id]
+    if job["status"] != "completed" or not job["results"]:
+        raise HTTPException(status_code=400, detail="Job not completed or no results available")
+
+    protonation_states = job["results"].get("protonation_states", [])
+    if state_id >= len(protonation_states):
+        raise HTTPException(status_code=400, detail="Invalid state_id")
+
+    # Convert SMILES to 3D PDB using RDKit (if available)
+    smiles = protonation_states[state_id].get("smiles", "")
+
+    try:
+        from rdkit import Chem
+        from rdkit.Chem import AllChem
+
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            raise HTTPException(status_code=500, detail="Failed to parse SMILES")
+
+        # Add hydrogens and generate 3D coordinates
+        mol = Chem.AddHs(mol)
+        AllChem.EmbedMolecule(mol, randomSeed=42)
+        AllChem.MMFFOptimizeMolecule(mol)
+
+        # Convert to PDB format
+        pdb_content = Chem.MolToPDBBlock(mol)
+
+        return {"job_id": job_id, "state_id": state_id, "pdb_content": pdb_content}
+    except ImportError:
+        # Fallback if RDKit is not available
+        raise HTTPException(status_code=501, detail="RDKit not available for PDB generation")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error generating PDB: {str(e)}")
 
 if __name__ == "__main__":
     import uvicorn

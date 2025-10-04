@@ -1,15 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params;
+    const searchParams = req.nextUrl.searchParams;
+    const stateId = searchParams.get('state_id') || '0';
 
-    const response = await fetch(`${BACKEND_URL}/api/jobs/${id}`, {
+    const response = await fetch(`${BACKEND_URL}/api/jobs/${id}/ligand-pdb?state_id=${stateId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -25,7 +27,7 @@ export async function GET(
     return NextResponse.json(data);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Unknown error";
-    console.error("Get job error:", e);
+    console.error("Get ligand PDB error:", e);
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

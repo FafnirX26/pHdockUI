@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server';
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
@@ -9,7 +9,7 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const response = await fetch(`${BACKEND_URL}/api/jobs/${id}`, {
+    const response = await fetch(`${BACKEND_URL}/api/receptors/${id}/pdb`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -25,7 +25,7 @@ export async function GET(
     return NextResponse.json(data);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Unknown error";
-    console.error("Get job error:", e);
+    console.error("Get receptor PDB error:", e);
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }

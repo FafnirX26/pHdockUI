@@ -87,3 +87,12 @@ equibind/
 *.npz
 *.h5
 *.hdf5
+
+# Docking results and user uploads
+docking_results/*
+!docking_results/.gitkeep
+receptors/user_uploads/*
+!receptors/user_uploads/.gitkeep
+
+# Website backend
+website/backend/contact_messages.jsonl

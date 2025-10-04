@@ -18,6 +18,7 @@ interface JobRequestData {
   ensemble_size: number;
   quantum_fallback: boolean;
   docking_backend: string;
+  receptor_id?: string;
 }
 
 interface JobResponse {
@@ -29,6 +30,16 @@ interface ExampleMolecule {
   name: string;
   smiles: string;
   description: string;
+}
+
+interface Receptor {
+  id: string;
+  name: string;
+  pdb_id: string;
+  description: string;
+  resolution: string;
+  use_case: string;
+  available: boolean;
 }
 
 export default function MoleculeInterface() {
@@ -43,7 +54,8 @@ export default function MoleculeInterface() {
     conformer_count: 10,
     ensemble_size: 5,
     quantum_fallback: false,
-    docking_backend: "autodock"
+    docking_backend: "gnina",
+    receptor_id: "mock"
   });
 
   // Fetch example molecules
@@ -51,6 +63,15 @@ export default function MoleculeInterface() {
     queryKey: ["example-molecules"],
     queryFn: async () => {
       const response = await axios.get(`${API_URL}/api/example-molecules`);
+      return response.data;
+    }
+  });
+
+  // Fetch available receptors
+  const { data: receptors } = useQuery<Receptor[]>({
+    queryKey: ["receptors"],
+    queryFn: async () => {
+      const response = await axios.get(`${API_URL}/api/receptors`);
       return response.data;
     }
   });
@@ -214,6 +235,25 @@ export default function MoleculeInterface() {
                       />
                       <span className="text-sm font-medium">Enable Quantum Fallback</span>
                     </label>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Receptor</label>
+                    <select
+                      value={settings.receptor_id}
+                      onChange={(e) => setSettings({ ...settings, receptor_id: e.target.value })}
+                      className="w-full px-3 py-1 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-900"
+                    >
+                      {receptors?.map((receptor) => (
+                        <option key={receptor.id} value={receptor.id}>
+                          {receptor.name} ({receptor.pdb_id})
+                        </option>
+                      ))}
+                    </select>
+                    {receptors?.find(r => r.id === settings.receptor_id) && (
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        {receptors.find(r => r.id === settings.receptor_id)?.description}
+                      </p>
+                    )}
                   </div>
                 </div>
               )}

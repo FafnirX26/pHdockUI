@@ -11,3 +11,6 @@ openmm
 jupyter
 tqdm
 joblib
+fastapi
+python-multipart
+uvicorn

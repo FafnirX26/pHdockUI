@@ -1,53 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import Replicate from "replicate";
+
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8000';
 
 export async function POST(req: NextRequest) {
   try {
-    const token = process.env.REPLICATE_API_TOKEN;
-    const modelId = process.env.REPLICATE_MODEL_ID; // owner/model format
+    const body = await req.json();
 
-    if (!token || !modelId) {
-      return NextResponse.json(
-        { error: "Server not configured. Set REPLICATE_API_TOKEN and REPLICATE_MODEL_ID." },
-        { status: 500 }
-      );
+    const response = await fetch(`${BACKEND_URL}/api/jobs`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || `Backend returned ${response.status}`);
     }
 
-    // Initialize Replicate client
-    const replicate = new Replicate({
-      auth: token,
-    });
-
-    const body = await req.json();
-    const { smiles, sdf_content, ph_value = 7.4, ensemble_size = 5 } = body || {};
-
-    const webhookUrl = process.env.REPLICATE_WEBHOOK_URL;
-
-    // Create prediction using Replicate library
-    const input = { 
-      smiles: smiles ?? null, 
-      sdf_content: sdf_content ?? null, 
-      ph_value, 
-      ensemble_size 
-    };
-
-    const prediction = await replicate.predictions.create({
-      model: modelId,
-      input,
-      ...(webhookUrl ? { 
-        webhook: webhookUrl, 
-        webhook_events_filter: ["completed"] 
-      } : {})
-    });
-
-    return NextResponse.json({
-      job_id: prediction.id,
-      status: prediction.status,
-      created_at: prediction.created_at,
-    });
+    const data = await response.json();
+    return NextResponse.json(data);
   } catch (e) {
     const msg = e instanceof Error ? e.message : "Unknown error";
-    console.error("Replicate prediction error:", e);
+    console.error("Job creation error:", e);
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
