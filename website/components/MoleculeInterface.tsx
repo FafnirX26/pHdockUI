@@ -6,6 +6,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import MoleculeViewer from "./MoleculeViewer";
 import ResultsPanel from "./ResultsPanel";
+import ReceptorSearch from "./ReceptorSearch";
 
 const API_URL = ""; // same-origin API
 
@@ -238,22 +239,11 @@ export default function MoleculeInterface() {
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Receptor</label>
-                    <select
+                    <ReceptorSearch
                       value={settings.receptor_id}
-                      onChange={(e) => setSettings({ ...settings, receptor_id: e.target.value })}
-                      className="w-full px-3 py-1 border border-gray-300 dark:border-gray-600 rounded dark:bg-gray-900"
-                    >
-                      {receptors?.map((receptor) => (
-                        <option key={receptor.id} value={receptor.id}>
-                          {receptor.name} ({receptor.pdb_id})
-                        </option>
-                      ))}
-                    </select>
-                    {receptors?.find(r => r.id === settings.receptor_id) && (
-                      <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                        {receptors.find(r => r.id === settings.receptor_id)?.description}
-                      </p>
-                    )}
+                      onChange={(pdbId) => setSettings({ ...settings, receptor_id: pdbId })}
+                      placeholder="Search RCSB PDB database..."
+                    />
                   </div>
                 </div>
               )}

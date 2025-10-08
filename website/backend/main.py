@@ -13,6 +13,8 @@ from datetime import datetime
 import asyncio
 import smtplib
 from email.message import EmailMessage
+import requests
+import shutil
 
 # Add parent directory to path to import the main project modules
 sys.path.append(str(Path(__file__).parent.parent.parent))
@@ -583,19 +585,119 @@ async def get_example_molecules():
         {"name": "Serotonin", "smiles": "NCCc1c[nH]c2ccc(O)cc12"}
     ]
 
+@app.get("/api/receptors/search")
+async def search_receptors(query: str, limit: int = 20):
+    """Search RCSB PDB database for receptors"""
+    if not query or len(query) < 2:
+        return []
+
+    try:
+        # Search RCSB PDB using their REST API
+        search_url = "https://search.rcsb.org/rcsbsearch/v2/query"
+
+        # Build search query - simple text search
+        search_payload = {
+            "query": {
+                "type": "terminal",
+                "service": "full_text",
+                "parameters": {
+                    "value": query
+                }
+            },
+            "return_type": "entry",
+            "request_options": {
+                "paginate": {
+                    "start": 0,
+                    "rows": limit
+                }
+            }
+        }
+
+        response = requests.post(search_url, json=search_payload, timeout=10)
+
+        # Debug logging
+        if response.status_code != 200:
+            print(f"PDB API Error: {response.status_code}")
+            print(f"Response: {response.text}")
+
+        response.raise_for_status()
+        search_results = response.json()
+
+        # Get PDB IDs from search results
+        pdb_ids = [item["identifier"] for item in search_results.get("result_set", [])][:limit]
+
+        if not pdb_ids:
+            return []
+
+        # Fetch detailed information for each PDB entry
+        results = []
+        for pdb_id in pdb_ids:
+            try:
+                info_url = f"https://data.rcsb.org/rest/v1/core/entry/{pdb_id}"
+                info_response = requests.get(info_url, timeout=5)
+                info_response.raise_for_status()
+                info_data = info_response.json()
+
+                # Extract relevant metadata
+                title = info_data.get("struct", {}).get("title", "Unknown")
+                resolution = info_data.get("rcsb_entry_info", {}).get("resolution_combined", [None])[0]
+                experimental_method = info_data.get("exptl", [{}])[0].get("method", "Unknown")
+
+                results.append({
+                    "pdb_id": pdb_id,
+                    "title": title,
+                    "resolution": f"{resolution:.2f} Å" if resolution else "N/A",
+                    "method": experimental_method,
+                    "description": f"{title[:100]}..." if len(title) > 100 else title
+                })
+            except Exception as e:
+                print(f"Error fetching info for {pdb_id}: {e}")
+                # Include minimal info if detailed fetch fails
+                results.append({
+                    "pdb_id": pdb_id,
+                    "title": pdb_id,
+                    "resolution": "N/A",
+                    "method": "Unknown",
+                    "description": pdb_id
+                })
+
+        return results
+
+    except Exception as e:
+        print(f"Error searching PDB: {e}")
+        return []
+
 @app.get("/api/receptors/{receptor_id}/pdb")
 async def get_receptor_pdb(receptor_id: str):
-    """Get PDB file content for a receptor"""
+    """Get PDB file content for a receptor - downloads from RCSB if not cached locally"""
     receptors_dir = Path(__file__).parent.parent.parent / "receptors" / "example"
     pdb_file = receptors_dir / f"{receptor_id}.pdb"
 
-    if not pdb_file.exists():
-        raise HTTPException(status_code=404, detail="Receptor PDB file not found")
+    # Check if already cached locally
+    if pdb_file.exists():
+        with open(pdb_file, 'r') as f:
+            pdb_content = f.read()
+        return {"receptor_id": receptor_id, "pdb_content": pdb_content, "source": "cache"}
 
-    with open(pdb_file, 'r') as f:
-        pdb_content = f.read()
+    # Download from RCSB PDB
+    try:
+        download_url = f"https://files.rcsb.org/download/{receptor_id}.pdb"
+        response = requests.get(download_url, timeout=30)
+        response.raise_for_status()
+        pdb_content = response.text
 
-    return {"receptor_id": receptor_id, "pdb_content": pdb_content}
+        # Cache the downloaded file
+        receptors_dir.mkdir(parents=True, exist_ok=True)
+        with open(pdb_file, 'w') as f:
+            f.write(pdb_content)
+
+        return {"receptor_id": receptor_id, "pdb_content": pdb_content, "source": "downloaded"}
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Could not fetch PDB file for {receptor_id}: {str(e)}"
+        )
 
 @app.get("/api/jobs/{job_id}/ligand-pdb")
 async def get_ligand_pdb(job_id: str, state_id: int = 0):
