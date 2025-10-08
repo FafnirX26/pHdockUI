@@ -31,6 +31,31 @@ except ImportError as e:
     print("Using mock implementations for demonstration")
     MODULES_AVAILABLE = False
 
+# Try to load improved pKa model components
+IMPROVED_PKA_MODEL = None
+PKA_SCALER = None
+PKA_FEATURE_EXTRACTOR = None
+
+try:
+    import joblib
+    from src.improved_pka_model import CuratedFeatureExtractor
+
+    base_path = Path(__file__).parent.parent.parent / "models"
+    xgb_path = base_path / "xgboost_model.pkl"
+    scaler_path = base_path / "scaler.pkl"
+
+    if xgb_path.exists() and scaler_path.exists():
+        IMPROVED_PKA_MODEL = joblib.load(xgb_path)
+        PKA_SCALER = joblib.load(scaler_path)
+        PKA_FEATURE_EXTRACTOR = CuratedFeatureExtractor()
+        print(f"✓ Loaded improved pKa model (XGBoost + RobustScaler)")
+        print(f"  Model ready for predictions")
+    else:
+        print(f"⚠ Model files not found at {base_path}, using mock pKa predictions")
+except Exception as e:
+    print(f"⚠ Could not load improved pKa model: {e}")
+    IMPROVED_PKA_MODEL = None
+
 app = FastAPI(title="pH Docking API", version="1.0.0")
 
 # Configure CORS
@@ -100,14 +125,84 @@ def mock_generate_conformers(mol, n_conformers=10):
     return [f"conformer_{i}" for i in range(n_conformers)]
 
 def mock_predict_pka_ensemble(mol, ensemble_size=5):
+    """Predict pKa using improved model if available, else mock."""
+    if IMPROVED_PKA_MODEL is not None and PKA_SCALER is not None and PKA_FEATURE_EXTRACTOR is not None:
+        try:
+            # Convert mol to SMILES if needed
+            if hasattr(mol, 'GetProp'):
+                from rdkit import Chem
+                smiles = Chem.MolToSmiles(mol)
+            elif isinstance(mol, str):
+                smiles = mol
+            else:
+                smiles = str(mol)
+
+            # Extract features
+            features = PKA_FEATURE_EXTRACTOR.extract_all_features(smiles)
+            if features is None:
+                raise ValueError("Could not extract features")
+
+            # Scale and predict
+            import numpy as np
+            features_scaled = PKA_SCALER.transform(features.reshape(1, -1))
+            predicted_pka = IMPROVED_PKA_MODEL.predict(features_scaled)[0]
+
+            # Calculate confidence (based on CV RMSE = 1.745)
+            confidence = 0.83  # ~1.0 - (1.745/10)
+
+            # Generate site-specific pKas (simplified)
+            from rdkit import Chem
+            from rdkit.Chem import Fragments
+            mol_obj = Chem.MolFromSmiles(smiles) if isinstance(smiles, str) else mol
+
+            site_pkas = []
+            idx = 0
+
+            # Detect ionizable groups
+            if Fragments.fr_COO(mol_obj) > 0:
+                site_pkas.append({'pka': predicted_pka, 'atom_idx': idx, 'type': 'carboxylic'})
+                idx += 1
+            if Fragments.fr_phenol(mol_obj) > 0:
+                site_pkas.append({'pka': predicted_pka + 5, 'atom_idx': idx, 'type': 'phenol'})
+                idx += 1
+            if Fragments.fr_NH2(mol_obj) > 0:
+                site_pkas.append({'pka': predicted_pka + 6, 'atom_idx': idx, 'type': 'amine'})
+                idx += 1
+
+            if not site_pkas:
+                site_pkas.append({'pka': predicted_pka, 'atom_idx': 0, 'type': 'primary'})
+
+            # Convert all numpy types to Python native types for JSON serialization
+            return {
+                'predicted_pka': float(predicted_pka),
+                'site_pkas': [
+                    {
+                        'pka': float(site['pka']),
+                        'atom_idx': int(site['atom_idx']),
+                        'type': str(site['type'])
+                    }
+                    for site in site_pkas
+                ],
+                'confidence': float(confidence),
+                'model': 'improved_xgboost',
+                'cv_r2': 0.690,  # From training
+                'cv_rmse': 1.745  # From training
+            }
+        except Exception as e:
+            print(f"Error using improved model: {e}, falling back to mock")
+            import traceback
+            traceback.print_exc()
+
+    # Fallback to random mock
     import random
     return {
         'predicted_pka': 4.2 + random.uniform(-0.5, 0.5),
         'site_pkas': [
-            {'pka': 4.2 + random.uniform(-0.3, 0.3), 'atom_idx': 0},
-            {'pka': 9.8 + random.uniform(-0.3, 0.3), 'atom_idx': 1}
+            {'pka': 4.2 + random.uniform(-0.3, 0.3), 'atom_idx': 0, 'type': 'mock'},
+            {'pka': 9.8 + random.uniform(-0.3, 0.3), 'atom_idx': 1, 'type': 'mock'}
         ],
-        'confidence': 0.85 + random.uniform(-0.1, 0.1)
+        'confidence': 0.85 + random.uniform(-0.1, 0.1),
+        'model': 'mock'
     }
 
 def mock_protonate_ligand(mol, ph=7.4, pka_values=None):
