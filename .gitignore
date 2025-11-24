@@ -96,3 +96,6 @@ receptors/user_uploads/*
 
 # Website backend
 website/backend/contact_messages.jsonl
+
+# PyTorch wheel files
+*.whl

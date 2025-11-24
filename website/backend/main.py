@@ -43,8 +43,8 @@ try:
     from src.improved_pka_model import CuratedFeatureExtractor
 
     base_path = Path(__file__).parent.parent.parent / "models"
-    xgb_path = base_path / "xgboost_model.pkl"
-    scaler_path = base_path / "scaler.pkl"
+    xgb_path = base_path / "fast_quantum_xgb.pkl"
+    scaler_path = base_path / "fast_quantum_scaler.pkl"
 
     if xgb_path.exists() and scaler_path.exists():
         IMPROVED_PKA_MODEL = joblib.load(xgb_path)
