@@ -8,7 +8,7 @@ import MoleculeViewer from "./MoleculeViewer";
 import ResultsPanel from "./ResultsPanel";
 import ReceptorSearch from "./ReceptorSearch";
 
-const API_URL = ""; // same-origin API
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
 // Type definitions
 interface JobRequestData {
@@ -80,7 +80,7 @@ export default function MoleculeInterface() {
   // Submit job mutation
   const submitJob = useMutation({
     mutationFn: async (data: JobRequestData) => {
-      const response = await axios.post(`/api/jobs`, data);
+      const response = await axios.post(`${API_URL}/api/jobs`, data);
       return response.data as JobResponse;
     },
     onSuccess: (data) => {
