@@ -1,0 +1,59 @@
+# Python backend files - not needed for frontend deployment
+requirements.txt
+website/backend/
+src/
+models/
+training_data/
+replicate/
+*.py
+*.pkl
+*.pt
+*.pth
+*.whl
+*.npy
+*.npz
+*.h5
+*.hdf5
+
+# Data files
+*.sdf
+*.mol2
+*.pdb
+*.smi
+data/
+datasets/
+results/
+output/
+
+# Virtual environments
+phd/
+venv/
+ENV/
+env/
+.venv/
+
+# Development files
+.git/
+.github/
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+
+# Documentation
+*.md
+!website/README.md
+
+# Test files
+test_*.py
+*_test.py
+tests/
+
+# Configuration
+.env
+.env.*
+!.env.example
+railway.dockerfile
+railway.toml
+railway.json
+DEPLOYMENT.md
