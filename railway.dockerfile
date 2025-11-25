@@ -16,9 +16,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy source code from root
 COPY src/ /app/src/
 
-# Copy models directory if it exists
-COPY models/ /app/models/ 2>/dev/null || :
-
 # Copy backend application code
 COPY website/backend/ /app/
 
