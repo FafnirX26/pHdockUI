@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "pH-aware molecular docking suite",
   "scripts": {
+    "install": "cd website && npm install",
+    "build": "cd website && npm run build",
+    "dev": "cd website && npm run dev",
+    "start": "cd website && npm run start",
     "build-replicate": "cd replicate && cog build",
     "push-replicate": "cd replicate && cog push dbd808/phdock"
   },
