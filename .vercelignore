@@ -5,7 +5,17 @@ src/
 models/
 training_data/
 replicate/
+
+# Exclude all Python files explicitly
 *.py
+main.py
+app.py
+server.py
+index.py
+api/
+app/
+
+# Exclude model and data files
 *.pkl
 *.pt
 *.pth
