@@ -14,12 +14,14 @@ interface DockingViewerProps {
 // Extend Window interface for 3Dmol
 declare global {
   interface Window {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     $3Dmol: any;
   }
 }
 
 export default function DockingViewer({ jobId, selectedStateId = 0, receptorId = "1ATP" }: DockingViewerProps) {
   const viewerRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [viewer, setViewer] = useState<any>(null);
   const [is3DmolLoaded, setIs3DmolLoaded] = useState(false);
 

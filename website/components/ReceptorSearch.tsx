@@ -20,7 +20,6 @@ interface ReceptorSearchProps {
 }
 
 export default function ReceptorSearch({
-  value,
   onChange,
   placeholder = "Search PDB database..."
 }: ReceptorSearchProps) {
@@ -171,7 +170,7 @@ export default function ReceptorSearch({
       {/* Help text */}
       {!searchQuery && !isOpen && (
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-          Search by PDB ID (e.g., "1ATP"), protein name (e.g., "COX-2"), or organism
+          Search by PDB ID (e.g., &quot;1ATP&quot;), protein name (e.g., &quot;COX-2&quot;), or organism
         </p>
       )}
 

@@ -69,7 +69,7 @@ export default function MoleculeInterface() {
   });
 
   // Fetch available receptors
-  const { data: receptors } = useQuery<Receptor[]>({
+  useQuery<Receptor[]>({
     queryKey: ["receptors"],
     queryFn: async () => {
       const response = await axios.get(`${API_URL}/api/receptors`);
