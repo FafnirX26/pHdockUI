@@ -12,8 +12,6 @@ main.py
 app.py
 server.py
 index.py
-api/
-app/
 
 # Exclude model and data files
 *.pkl
