@@ -165,6 +165,12 @@ vercel logs                # View logs
 vercel env ls              # List environment variables
 ```
 
+## Deployed URLs
+
+- **Frontend (Vercel)**: https://phdock-8vpz8gou1-ravi-lakkireddys-projects.vercel.app
+- **Backend (Railway)**: https://phdock-production.up.railway.app
+- **API Docs**: https://phdock-production.up.railway.app/docs
+
 ## Next Steps After Deployment
 
 1. Test the deployed application
