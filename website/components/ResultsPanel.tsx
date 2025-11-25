@@ -51,6 +51,7 @@ interface JobData {
   request?: {
     ph_value: number;
     smiles?: string;
+    receptor_id?: string;
   };
   error?: string;
 }
