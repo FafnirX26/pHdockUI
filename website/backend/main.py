@@ -66,7 +66,9 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:3000",
         "http://localhost:3001",
-        "https://ph-dock.vercel.app"
+        "https://ph-dock.vercel.app",
+        "https://phdock-8vpz8gou1-ravi-lakkireddys-projects.vercel.app",
+        "https://*.vercel.app"  # Allow all Vercel preview deployments
     ],
     allow_credentials=True,
     allow_methods=["*"],
