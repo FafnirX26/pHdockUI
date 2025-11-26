@@ -4,7 +4,6 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Loader2, Download, AlertCircle } from "lucide-react";
 import { useState } from "react";
-import DockingViewer from "./DockingViewer";
 import dynamic from 'next/dynamic';
 
 const DockingViewer = dynamic(() => import('./DockingViewer'), {
