@@ -1,8 +1,13 @@
 import Hero from "@/components/Hero";
 import TeamSection from "@/components/TeamSection";
 import CredibilitySection from "@/components/CredibilitySection";
-import MoleculeInterface from "@/components/MoleculeInterface";
 import Reveal from "@/components/Reveal";
+import dynamic from 'next/dynamic';
+
+const MoleculeInterface = dynamic(() => import('@/components/MoleculeInterface'), {
+  ssr: false,
+  loading: () => <div className="h-96 flex items-center justify-center"><p>Loading interface...</p></div>,
+});
 
 export default function Home() {
   return (
