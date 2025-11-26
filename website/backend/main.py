@@ -67,6 +67,7 @@ app.add_middleware(
         "http://localhost:3000",
         "http://localhost:3001",
         "https://ph-dock.vercel.app",
+        "https://phdock.vercel.app",
         "https://phdock-8vpz8gou1-ravi-lakkireddys-projects.vercel.app",
         "https://*.vercel.app"  # Allow all Vercel preview deployments
     ],
