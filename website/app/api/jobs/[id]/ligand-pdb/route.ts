@@ -11,7 +11,10 @@ export async function GET(
     const searchParams = req.nextUrl.searchParams;
     const stateId = searchParams.get('state_id') || '0';
 
-    const response = await fetch(`${BACKEND_URL}/api/jobs/${id}/ligand-pdb?state_id=${stateId}`, {
+    const fullBackendUrl = `${BACKEND_URL}/api/jobs/${id}/ligand-pdb?state_id=${stateId}`;
+    console.log(`Fetching ligand PDB from: ${fullBackendUrl}`); // DEBUGGING
+
+    const response = await fetch(fullBackendUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

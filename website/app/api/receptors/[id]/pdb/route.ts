@@ -9,7 +9,10 @@ export async function GET(
   try {
     const { id } = await params;
 
-    const response = await fetch(`${BACKEND_URL}/api/receptors/${id}/pdb`, {
+    const fullBackendUrl = `${BACKEND_URL}/api/receptors/${id}/pdb`;
+    console.log(`Fetching receptor PDB from: ${fullBackendUrl}`); // DEBUGGING
+
+    const response = await fetch(fullBackendUrl, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

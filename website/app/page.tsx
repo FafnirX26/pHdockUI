@@ -1,10 +1,8 @@
-import dynamic from 'next/dynamic';
-
-const Hero = dynamic(() => import('@/components/Hero'), { ssr: false });
-const TeamSection = dynamic(() => import('@/components/TeamSection'), { ssr: false });
-const CredibilitySection = dynamic(() => import('@/components/CredibilitySection'), { ssr: false });
-const Reveal = dynamic(() => import('@/components/Reveal'), { ssr: false });
-const MoleculeInterfaceLoader = dynamic(() => import('@/components/MoleculeInterfaceLoader'), { ssr: false });
+import Hero from "@/components/Hero";
+import TeamSection from "@/components/TeamSection";
+import CredibilitySection from "@/components/CredibilitySection";
+import Reveal from "@/components/Reveal";
+import MoleculeInterfaceLoader from "@/components/MoleculeInterfaceLoader";
 
 export default function Home() {
   return (
