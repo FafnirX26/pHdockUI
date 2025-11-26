@@ -5,6 +5,15 @@ import axios from "axios";
 import { Loader2, Download, AlertCircle } from "lucide-react";
 import { useState } from "react";
 import DockingViewer from "./DockingViewer";
+import dynamic from 'next/dynamic';
+
+const DockingViewer = dynamic(() => import('./DockingViewer'), {
+  ssr: false,
+  loading: () => <div className="w-full h-full flex items-center justify-center bg-gray-50 dark:bg-gray-800 rounded-lg">
+    <Loader2 className="animate-spin" size={32} />
+    <p className="ml-2">Loading 3D Viewer...</p>
+  </div>,
+});
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
