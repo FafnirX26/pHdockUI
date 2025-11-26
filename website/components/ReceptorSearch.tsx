@@ -42,18 +42,19 @@ export default function ReceptorSearch({
   }, [searchQuery]);
 
   // Search receptors
-  const { data: receptors, isLoading } = useQuery<ReceptorSearchResult[]>({
-    queryKey: ["receptor-search", debouncedQuery],
-    queryFn: async () => {
-      if (!debouncedQuery || debouncedQuery.length < 2) {
-        return [];
-      }
-      const response = await axios.get(`${API_URL}/api/receptors/search?query=${encodeURIComponent(debouncedQuery)}`);
-      return response.data;
-    },
-    enabled: debouncedQuery.length >= 2
-  });
-
+        console.log("API_URL:", API_URL); // Debugging line
+        const { data: receptors, isLoading } = useQuery<ReceptorSearchResult[]>({
+          queryKey: ["receptor-search", debouncedQuery],
+          queryFn: async () => {
+            if (!debouncedQuery || debouncedQuery.length < 2) {
+              return [];
+            }
+            const response = await axios.get(`${API_URL}/api/receptors/search?query=${encodeURIComponent(debouncedQuery)}`);
+            console.log("Receptors data:", response.data); // Debugging line
+            return response.data;
+          },
+          enabled: debouncedQuery.length >= 2
+        });
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
