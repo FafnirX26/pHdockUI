@@ -21,8 +21,15 @@ export default function Reveal({
 }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
   const [visible, setVisible] = useState(false);
+  const [isMotionReduced, setIsMotionReduced] = useState(false);
 
   useEffect(() => {
+    // This check runs only on the client, after the component has mounted.
+    setIsMotionReduced(
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    );
+
     const element = ref.current;
     if (!element) return;
 
@@ -42,12 +49,7 @@ export default function Reveal({
     return () => observer.disconnect();
   }, [once]);
 
-  const prefersReducedMotion =
-    typeof window !== "undefined" &&
-    window.matchMedia &&
-    window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  const transitionStyle = prefersReducedMotion
+  const transitionStyle = isMotionReduced
     ? undefined
     : ({
         transition: "opacity 600ms ease, transform 600ms cubic-bezier(0.22, 1, 0.36, 1)",
@@ -59,10 +61,10 @@ export default function Reveal({
       ref={ref as React.RefObject<HTMLElement>}
       className={className}
       style={{
-        opacity: visible || prefersReducedMotion ? 1 : 0,
+        opacity: visible || isMotionReduced ? 1 : 0,
         transform:
-          visible || prefersReducedMotion ? "none" : `translateY(${yOffsetPx}px)`,
-        willChange: prefersReducedMotion ? undefined : ("opacity, transform" as React.CSSProperties["willChange"]),
+          visible || isMotionReduced ? "none" : `translateY(${yOffsetPx}px)`,
+        willChange: isMotionReduced ? undefined : ("opacity, transform" as React.CSSProperties["willChange"]),
         ...transitionStyle,
       }}
     >
